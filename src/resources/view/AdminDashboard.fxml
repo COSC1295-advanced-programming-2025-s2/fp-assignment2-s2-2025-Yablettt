@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.Pane?>
+
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <top>
+      <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <items>
+          <Button mnemonicParsing="false" onAction="#onAdd" text="Add" />
+            <Pane prefHeight="29.0" prefWidth="16.0" />
+            <Button mnemonicParsing="false" onAction="#onModify" text="Modify" />
+            <Pane prefHeight="29.0" prefWidth="17.0" />
+            <Button mnemonicParsing="false" onAction="#onToggleEnabled" text="Enable/Disable" />
+            <Separator prefHeight="40.0" prefWidth="79.0" />
+            <Button mnemonicParsing="false" onAction="#onViewAllRegs" text="View Registration" />
+            <Pane prefHeight="40.0" prefWidth="63.0" />
+            <Button mnemonicParsing="false" onAction="#onLogout" text="Logout" />
+        </items>
+         <padding>
+            <Insets left="20.0" right="20.0" />
+         </padding>
+      </ToolBar>
+   </top>
+   <center>
+      <SplitPane dividerPositions="0.48604910714285715, 0.49776785714285715, 0.5094866071428572" prefHeight="160.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+        <items>
+            <TableView fx:id="titleTable" prefHeight="357.0" prefWidth="189.0">
+              <columns>
+                <TableColumn prefWidth="287.3333435455955" text="Title" />
+              </columns>
+            </TableView>
+          <AnchorPane fx:id="titleTable" minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="260.0" />
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0" />
+            <TableView fx:id="projectTable" prefHeight="200.0" prefWidth="200.0">
+              <columns>
+                <TableColumn fx:id="locCol" prefWidth="63.99999872843455" text="Location" />
+                  <TableColumn fx:id="dayCol" prefWidth="30.000003814697266" text="Day" />
+                  <TableColumn fx:id="hourlyCol" minWidth="0.0" prefWidth="44.66667938232422" text="Hourly" />
+                  <TableColumn fx:id="totalCol" prefWidth="48.0" text="Total Slots" />
+                  <TableColumn fx:id="registeredCol" minWidth="0.0" prefWidth="52.666717529296875" text="Registered" />
+                  <TableColumn fx:id="enabledCol" prefWidth="48.66667175292969" text="Enabled" />
+              </columns>
+            </TableView>
+        </items>
+      </SplitPane>
+   </center>
+</BorderPane>
