@@ -87,6 +87,13 @@ public class ProjectStore {
         }
     }
 
+    // overloader
+    public static boolean insert(String title, String location, String day,
+                                 double hourlyValue, int registeredSlots, int totalSlots) {
+        return insert(title, location, day, hourlyValue, registeredSlots, totalSlots, true);
+    }
+
+
     public static boolean updateProject(String oldTitle, String newTitle, String newLocation,
                                         String newDay, double newHourlyValue, int newTotalSlots) {
         String sql = """

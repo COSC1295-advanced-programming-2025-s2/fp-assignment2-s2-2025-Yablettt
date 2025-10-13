@@ -7,27 +7,30 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.voluntrack.controller.CartController">
    <center>
       <TableView fx:id="cartTable" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <columns>
-          <TableColumn fx:id="projCol" prefWidth="75.0" text="Project" />
-          <TableColumn fx:id="dayLocCol" prefWidth="75.0" text="Day/Location" />
-            <TableColumn fx:id="slotsCol" prefWidth="75.0" text="Slots" />
-            <TableColumn fx:id="hoursCol" prefWidth="75.0" text="Hours" />
-            <TableColumn fx:id="totalCol" prefWidth="75.0" text="Total" />
+          <TableColumn fx:id="titleCol" prefWidth="143.9999338388443" text="Project" />
+            <TableColumn fx:id="slotsCol" prefWidth="158.00001525878906" text="Slots" />
+            <TableColumn fx:id="hoursCol" prefWidth="160.0" text="Hours" />
+            <TableColumn fx:id="totalCol" prefWidth="139.33328247070312" text="Total" />
         </columns>
       </TableView>
    </center>
    <bottom>
       <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
          <padding>
-            <Insets bottom="16.0" left="16.0" right="220.0" top="16.0" />
+            <Insets bottom="16.0" left="16.0" right="200.0" top="16.0" />
          </padding>
          <children>
+            <Button fx:id="onBack" mnemonicParsing="false" text="Back">
+               <HBox.margin>
+                  <Insets />
+               </HBox.margin>
+            </Button>
             <Button mnemonicParsing="false" onAction="#onRemove" text="Remove Selected" />
-            <Button defaultButton="true" mnemonicParsing="false" onAction="#onConfrim" text="Confirm" />
+            <Button defaultButton="true" mnemonicParsing="false" onAction="#onConfirm" text="Confirm" />
          </children>
       </HBox>
    </bottom>

@@ -11,8 +11,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.Pane?>
 
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.voluntrack.controller.AdminDashboardController">
    <top>
       <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <items>
@@ -20,10 +19,10 @@
             <Pane prefHeight="29.0" prefWidth="16.0" />
             <Button mnemonicParsing="false" onAction="#onModify" text="Modify" />
             <Pane prefHeight="29.0" prefWidth="17.0" />
-            <Button mnemonicParsing="false" onAction="#onToggleEnabled" text="Enable/Disable" />
+            <Button mnemonicParsing="false" onAction="#onEnable" text="Enable/Disable" />
             <Separator prefHeight="40.0" prefWidth="79.0" />
-            <Button mnemonicParsing="false" onAction="#onViewAllRegs" text="View Registration" />
-            <Pane prefHeight="40.0" prefWidth="63.0" />
+            <Button mnemonicParsing="false" onAction="#onRefresh" text="Refresh" />
+            <Pane prefHeight="40.0" prefWidth="117.0" />
             <Button mnemonicParsing="false" onAction="#onLogout" text="Logout" />
         </items>
          <padding>
@@ -34,7 +33,7 @@
    <center>
       <SplitPane dividerPositions="0.48604910714285715, 0.49776785714285715, 0.5094866071428572" prefHeight="160.0" prefWidth="100.0" BorderPane.alignment="CENTER">
         <items>
-            <TableView fx:id="titleTable" prefHeight="357.0" prefWidth="189.0">
+            <TableView fx:id="table" prefHeight="357.0" prefWidth="189.0">
               <columns>
                 <TableColumn prefWidth="287.3333435455955" text="Title" />
               </columns>

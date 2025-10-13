@@ -52,7 +52,7 @@ public class ProjectFormController {
             return;
         }
 
-        boolean ok = ProjectStore.insert(title, loc, day, hourly, /*registered=*/0, totalSlots);
+        boolean ok = ProjectStore.insert(title, loc, day, hourly, 0, totalSlots);
         if (ok) {
             new Alert(Alert.AlertType.INFORMATION, "Project saved").showAndWait();
             Navigator.go("AdminDashboard.fxml", username);

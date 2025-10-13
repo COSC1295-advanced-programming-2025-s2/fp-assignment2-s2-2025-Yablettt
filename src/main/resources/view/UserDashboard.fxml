@@ -11,13 +11,19 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 
-
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.voluntrack.controller.UserDashboardController">
    <top>
-      <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <ToolBar prefHeight="40.0" prefWidth="617.0" BorderPane.alignment="CENTER">
         <items>
             <Pane prefHeight="29.0" prefWidth="10.0" />
-          <Button graphicTextGap="0.0" mnemonicParsing="false" onAction="#onOpenCart" text="Cart">
+            <Label fx:id="welcomeLabel" layoutX="20" layoutY="20" text="Welcome ">
+               <padding>
+                  <Insets right="30.0" />
+               </padding></Label>
+            <Pane prefHeight="29.0" prefWidth="174.0" />
+            <Pane prefHeight="29.0" prefWidth="10.0" />
+            <Pane prefHeight="40.0" prefWidth="54.0" />
+            <Button graphicTextGap="0.0" mnemonicParsing="false" onAction="#onOpenCart" text="Cart">
                <opaqueInsets>
                   <Insets />
                </opaqueInsets>
@@ -25,19 +31,24 @@
             <Pane prefHeight="29.0" prefWidth="10.0" />
             <Button mnemonicParsing="false" onAction="#onOpenHistory" text="History" />
             <Pane prefHeight="29.0" prefWidth="10.0" />
-            <Button mnemonicParsing="false" onAction="#onChangePassword" text="Change Password" />
-            <Pane prefHeight="29.0" prefWidth="271.0" />
             <Button mnemonicParsing="false" onAction="#onLogout" text="Logout" />
         </items>
+         <BorderPane.margin>
+            <Insets />
+         </BorderPane.margin>
+         <padding>
+            <Insets right="20.0" />
+         </padding>
       </ToolBar>
    </top>
    <center>
       <TableView fx:id="projectTable" prefHeight="360.0" prefWidth="443.0" BorderPane.alignment="CENTER">
         <columns>
-          <TableColumn fx:id="TitleCol" prefWidth="75.0" text="Title" />
-          <TableColumn fx:id="LocationCol" prefWidth="75.0" text="Location" />
-            <TableColumn fx:id="DayCol" prefWidth="75.0" text="Day" />
-            <TableColumn fx:id="HourlyCol" prefWidth="75.0" text="Hourly" />
+          <TableColumn fx:id="titleCol" prefWidth="75.0" text="Title" />
+          <TableColumn fx:id="locationCol" prefWidth="75.0" text="Location" />
+            <TableColumn fx:id="dayCol" prefWidth="75.0" text="Day" />
+            <TableColumn fx:id="hourlyCol" prefWidth="75.0" text="Hourly" />
+            <TableColumn fx:id="availableCol" prefWidth="75.0" text="Availabilty" />
         </columns>
       </TableView>
    </center>
@@ -51,7 +62,7 @@
             <Spinner fx:id="slotsSpinner" />
             <Label text="Hours (1-3)" />
             <Spinner fx:id="hoursSpinner" />
-            <Button mnemonicParsing="false" onAction="#onAddToCart" text="Add to Cart" />
+          <!--  <Button mnemonicParsing="false" onAction="#onAddToCart" text="Add to Cart" /> -->
          </children>
       </VBox>
    </right>
