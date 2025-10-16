@@ -11,7 +11,7 @@
    <center>
       <TableView fx:id="historyTable" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <columns>
-          <TableColumn fx:id="regCodeCol" prefWidth="75.0" text="Reg Code" />
+          <TableColumn fx:id="regIdCol" prefWidth="75.0" text="Reg Code" />
           <TableColumn fx:id="dateTimeCol" prefWidth="75.0" text="Date/Time" />
             <TableColumn fx:id="titleCol" prefWidth="75.0" text="Title" />
             <TableColumn fx:id="locationCol" prefWidth="75.0" text="Location" />

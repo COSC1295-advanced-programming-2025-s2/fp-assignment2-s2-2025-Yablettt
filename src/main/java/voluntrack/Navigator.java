@@ -4,6 +4,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import main.java.voluntrack.controller.HistoryController;
 import main.java.voluntrack.controller.UserDashboardController;
 
 public class Navigator {
@@ -26,9 +27,12 @@ public class Navigator {
         try {
             FXMLLoader loader = new FXMLLoader(Navigator.class.getResource("/view/" + fxmlFile));
             Parent root = loader.load();
+
             Object controller = loader.getController();
             if (controller instanceof UserDashboardController udc) {
                 udc.setUsername(username);
+            } else if (controller instanceof HistoryController hc) {
+                hc.setUsername(username);
             }
             primaryStage.setScene(new Scene(root));
             primaryStage.show();
@@ -36,4 +40,5 @@ public class Navigator {
             throw new RuntimeException("Failed to load " + fxmlFile, e);
         }
     }
+
 }

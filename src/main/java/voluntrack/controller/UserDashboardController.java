@@ -101,7 +101,7 @@ public class UserDashboardController {
         hourlyCol.setCellValueFactory(c -> new ReadOnlyDoubleWrapper(c.getValue().getHourlyValue()));
         availableCol.setCellValueFactory(c -> new ReadOnlyIntegerWrapper(c.getValue().getAvailableSlots()));
 
-        projectTable.getItems().setAll(ProjectStore.loadAll());
+        projectTable.getItems().setAll(ProjectStore.loadFromCsv("/data/projects.csv"));
     }
 }
 

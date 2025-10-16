@@ -24,7 +24,7 @@
             <Insets bottom="16.0" left="16.0" right="200.0" top="16.0" />
          </padding>
          <children>
-            <Button fx:id="onBack" mnemonicParsing="false" text="Back">
+            <Button mnemonicParsing="false" onAction="#onBack" text="Back">
                <HBox.margin>
                   <Insets />
                </HBox.margin>
