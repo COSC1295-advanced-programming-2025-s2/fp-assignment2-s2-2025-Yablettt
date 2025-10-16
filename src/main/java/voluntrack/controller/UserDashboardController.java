@@ -51,16 +51,16 @@ import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import main.java.voluntrack.model.Project;
+import main.java.voluntrack.store.CartStore;
 import main.java.voluntrack.store.ProjectStore;
 import main.java.voluntrack.Navigator;
 
 public class UserDashboardController {
 
     @FXML private Label welcomeLabel;
+    @FXML private Label selectedProjectLabel;
 
     @FXML private TableView<Project> projectTable;
     @FXML private TableColumn<Project, String> titleCol;
@@ -68,8 +68,12 @@ public class UserDashboardController {
     @FXML private TableColumn<Project, String> dayCol;
     @FXML private TableColumn<Project, Number> hourlyCol;
     @FXML private TableColumn<Project, Number> availableCol;
+    @FXML private Spinner<Integer> slotsSpinner;
+    @FXML private Spinner<Integer> hoursSpinner;
+    @FXML private Button addBtn;
 
     private String passedUsername;
+    private String username;
 
     public void setUsername(String username) {
         if (welcomeLabel != null && username != null) {
@@ -100,8 +104,38 @@ public class UserDashboardController {
         dayCol.setCellValueFactory(c -> new ReadOnlyStringWrapper(c.getValue().getDay()));
         hourlyCol.setCellValueFactory(c -> new ReadOnlyDoubleWrapper(c.getValue().getHourlyValue()));
         availableCol.setCellValueFactory(c -> new ReadOnlyIntegerWrapper(c.getValue().getAvailableSlots()));
+        slotsSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 3, 1));
+        hoursSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 3, 1));
 
         projectTable.getItems().setAll(ProjectStore.loadFromCsv("/data/projects.csv"));
+
+        setCartControlsEnabled(false);
+
+        projectTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            if (newSel == null) {
+                selectedProjectLabel.setText("No project selected");
+                setCartControlsEnabled(true);
+            }
+        });
     }
+
+    private void setCartControlsEnabled(boolean enabled) {
+        slotsSpinner.setDisable(!enabled);
+        hoursSpinner.setDisable(!enabled);
+        addBtn.setDisable(!enabled);
+    }
+
+    @FXML
+    private void onAddToCart() {
+        Project p = projectTable.getSelectionModel().getSelectedItem();
+        if (p == null) {
+            new Alert(Alert.AlertType.ERROR, "Please select a project first.").showAndWait();
+            return;
+        }
+        int slots = slotsSpinner.getValue();
+        int hours = hoursSpinner.getValue();
+        Navigator.goToCart(username, p.getTitle(), p.getHourlyValue(), slots, hours);
+    }
+
 }
 

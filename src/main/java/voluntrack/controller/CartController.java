@@ -136,4 +136,10 @@ public class CartController {
         double sum = cartItems.stream().mapToDouble(CartItem::getTotal).sum();
         if (totalLabel != null) totalLabel.setText(String.format("Total: $%.2f", sum));
     }
+
+    public void addFromDashboard(String title, double hourlyValue, int slots, int hours) {
+        cartItems.add(new CartItem(title, slots, hours, hourlyValue));
+        refreshTotals();
+    }
+
 }

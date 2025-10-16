@@ -58,10 +58,17 @@
             <Insets bottom="16.0" left="16.0" right="16.0" top="16.0" />
          </padding>
          <children>
+            <Label fx:id="selectedProjectLabel" text="No project selected" />
+            <Pane prefHeight="61.0" prefWidth="188.0" />
             <Label text="Choose slots (1-3)" />
             <Spinner fx:id="slotsSpinner" />
             <Label text="Hours (1-3)" />
             <Spinner fx:id="hoursSpinner" />
+            <Button fx:id="addBtn" mnemonicParsing="false" onAction="#onAddToCart" text="Add to Cart">
+               <VBox.margin>
+                  <Insets top="20.0" />
+               </VBox.margin>
+            </Button>
           <!--  <Button mnemonicParsing="false" onAction="#onAddToCart" text="Add to Cart" /> -->
          </children>
       </VBox>

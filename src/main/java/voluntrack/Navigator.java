@@ -41,4 +41,21 @@ public class Navigator {
         }
     }
 
+    public static void goToCart(String username, String title, double hourlyValue, int slots, int hours) {
+        try {
+            FXMLLoader loader = new FXMLLoader(Navigator.class.getResource("/view/CartView.fxml"));
+            Parent root = loader.load();
+            Object c = loader.getController();
+            if (c instanceof main.java.voluntrack.controller.CartController cart) {
+                cart.setUsername(username);
+                cart.addFromDashboard(title, hourlyValue, slots, hours); // or addFromDashboardAndPrefill(...)
+            }
+            primaryStage.setScene(new Scene(root));
+            primaryStage.show();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load CartView.fxml", e);
+        }
+    }
+
+
 }
