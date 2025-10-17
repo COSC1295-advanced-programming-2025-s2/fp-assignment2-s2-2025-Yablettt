@@ -74,6 +74,7 @@ public class UserDashboardController {
 
     private String passedUsername;
     private String username;
+    private Project selectedProject;
 
     public void setUsername(String username) {
         if (welcomeLabel != null && username != null) {
@@ -108,15 +109,29 @@ public class UserDashboardController {
         hoursSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 3, 1));
 
         projectTable.getItems().setAll(ProjectStore.loadFromCsv("/data/projects.csv"));
+        projectTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
+        selectedProjectLabel.setText("No project selected");
         setCartControlsEnabled(false);
 
-        projectTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
-            if (newSel == null) {
+        // when somethings selected, now reacts / changes
+        projectTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, p) -> {
+            if (p == null) {
                 selectedProjectLabel.setText("No project selected");
-                setCartControlsEnabled(true);
+                setCartControlsEnabled(false);
+                return;
             }
+
+            selectedProjectLabel.setText(p.getTitle());
+
+            int maxSlots = Math.max(1, Math.min(3, p.getAvailableSlots()));
+            slotsSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, maxSlots, Math.min(1, maxSlots)));
+            slotsSpinner.setDisable(maxSlots == 0);
+
+
+            setCartControlsEnabled(maxSlots > 0);
         });
+
     }
 
     private void setCartControlsEnabled(boolean enabled) {
@@ -129,13 +144,27 @@ public class UserDashboardController {
     private void onAddToCart() {
         Project p = projectTable.getSelectionModel().getSelectedItem();
         if (p == null) {
-            new Alert(Alert.AlertType.ERROR, "Please select a project first.").showAndWait();
+            new Alert(Alert.AlertType.WARNING, "Select a project first.").showAndWait();
             return;
         }
         int slots = slotsSpinner.getValue();
         int hours = hoursSpinner.getValue();
-        Navigator.goToCart(username, p.getTitle(), p.getHourlyValue(), slots, hours);
+        if (hours < 1 || hours > 3 || slots < 1 || slots > 3) {
+            new Alert(Alert.AlertType.ERROR, "Hours and slots must be between 1 and 3.").showAndWait();
+            return;
+        }
+        if (slots > p.getAvailableSlots()) {
+            new Alert(Alert.AlertType.ERROR, "Not enough available slots for this project.").showAndWait();
+            return;
+        }
+
+
+        //CartStore.add(username, p, slots, hours);
+        Navigator.go("CartView.fxml", username);
+
+        new Alert(Alert.AlertType.INFORMATION, "Added to cart: " + p.getTitle()).showAndWait();
     }
+
 
 }
 
