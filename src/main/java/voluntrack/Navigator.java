@@ -4,6 +4,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import main.java.voluntrack.controller.CartController;
 import main.java.voluntrack.controller.HistoryController;
 import main.java.voluntrack.controller.UserDashboardController;
 
@@ -33,6 +34,8 @@ public class Navigator {
                 udc.setUsername(username);
             } else if (controller instanceof HistoryController hc) {
                 hc.setUsername(username);
+            } else if (controller instanceof CartController cc) {
+                cc.setUsername(username);
             }
             primaryStage.setScene(new Scene(root));
             primaryStage.show();
@@ -48,7 +51,7 @@ public class Navigator {
             Object c = loader.getController();
             if (c instanceof main.java.voluntrack.controller.CartController cart) {
                 cart.setUsername(username);
-                cart.addFromDashboard(title, hourlyValue, slots, hours); // or addFromDashboardAndPrefill(...)
+                cart.addFromDashboard(title, hourlyValue, slots, hours);
             }
             primaryStage.setScene(new Scene(root));
             primaryStage.show();

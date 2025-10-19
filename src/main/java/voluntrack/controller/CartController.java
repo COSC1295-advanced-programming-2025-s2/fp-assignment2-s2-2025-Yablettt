@@ -3,61 +3,43 @@ package main.java.voluntrack.controller;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import main.java.voluntrack.Navigator;
-import main.java.voluntrack.store.RegistrationStore;
-
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
+import main.java.voluntrack.store.CartStore;
 
 public class CartController {
 
+    @FXML private TableView<CartStore.Item> cartTable;
+    @FXML private TableColumn<CartStore.Item, String> titleCol;
+    @FXML private TableColumn<CartStore.Item, Number> slotsCol;
+    @FXML private TableColumn<CartStore.Item, Number> hoursCol;
+    @FXML private TableColumn<CartStore.Item, Number> totalCol;
 
-    public static class CartItem {
-        private final String title;
-        private final int slots;
-        private final int hours;
-        private final double hourlyValue;
-
-        public CartItem(String title, int slots, int hours, double hourlyValue) {
-            this.title = title; this.slots = slots; this.hours = hours; this.hourlyValue = hourlyValue;
-        }
-        public String getTitle() { return title; }
-        public int getSlots() { return slots; }
-        public int getHours() { return hours; }
-        public double getHourlyValue() { return hourlyValue; }
-        public double getTotal() { return hourlyValue * hours * slots; }
-    }
+    @FXML private Label totalLabel;
+    @FXML private TextField codeField;
 
     private String username;
 
-    public void setUsername(String username) { this.username = username; }
-    public void addSelectedProject(String title, double hourly) {
-        cartItems.add(new CartItem(title, 1, 1, hourly));
+    public void setUsername(String username) {
+        this.username = username;
+
+        cartTable.setItems(CartStore.getCart(username));
+
+        CartStore.getCart(username).addListener((ListChangeListener<CartStore.Item>) c -> refreshTotals());
         refreshTotals();
     }
 
-    @FXML private TableView<CartItem> cartTable;
-    @FXML private TableColumn<CartItem, String> titleCol;
-    @FXML private TableColumn<CartItem, Number> slotsCol;
-    @FXML private TableColumn<CartItem, Number> hoursCol;
-    @FXML private TableColumn<CartItem, Number> totalCol;
+    public void addFromDashboard(String title, double hourlyValue, int slots, int hours) {
+        main.java.voluntrack.store.CartStore.add(username, title, hourlyValue, slots, hours);
 
-    @FXML private TextField titleField;
-    @FXML private Spinner<Integer> slotsSpinner;
-    @FXML private Spinner<Integer> hoursSpinner;
-    @FXML private TextField codeField;
+        if (cartTable != null) {
+            cartTable.refresh();
+        }
+        refreshTotals();
+    }
 
-    @FXML private Label totalLabel;
-    @FXML private Button btnAdd;
-    @FXML private Button btnRemove;
-    @FXML private Button btnConfirm;
-    @FXML private Button btnBack;
-
-    private final ObservableList<CartItem> cartItems = FXCollections.observableArrayList();
 
     @FXML
     private void initialize() {
@@ -65,66 +47,48 @@ public class CartController {
         slotsCol.setCellValueFactory(c -> new ReadOnlyIntegerWrapper(c.getValue().getSlots()));
         hoursCol.setCellValueFactory(c -> new ReadOnlyIntegerWrapper(c.getValue().getHours()));
         totalCol.setCellValueFactory(c -> new ReadOnlyDoubleWrapper(c.getValue().getTotal()));
-        cartTable.setItems(cartItems);
-
-        if (slotsSpinner != null) {
-            slotsSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 3, 1));
-        }
-        if (hoursSpinner != null) {
-            hoursSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 3, 1));
-        }
-        refreshTotals();
-    }
-
-    @FXML
-    private void onAdd() {
-        String t = titleField.getText().trim();
-        if (t.isEmpty()) {
-            new Alert(Alert.AlertType.ERROR, "Enter project title to add").showAndWait();
-            return;
-        }
-        cartItems.add(new CartItem(t, slotsSpinner.getValue(), hoursSpinner.getValue(), /*hourly*/ 25.0));
-        refreshTotals();
     }
 
     @FXML
     private void onRemove() {
-        CartItem sel = cartTable.getSelectionModel().getSelectedItem();
+        CartStore.Item sel = cartTable.getSelectionModel().getSelectedItem();
         if (sel != null) {
-            cartItems.remove(sel);
+            CartStore.remove(username, sel);
             refreshTotals();
         }
     }
 
     @FXML
     private void onConfirm() {
-        // validate code
-        String code = codeField.getText().trim();
+        // get 6 digit code
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("Confirmation Code");
+        dialog.setHeaderText("Enter the 6-digit confirmation code");
+        dialog.setContentText("Code:");
+        dialog.getEditor().setPromptText("e.g. 123456");
+
+        String code = dialog.showAndWait().orElse("").trim();
         if (!code.matches("\\d{6}")) {
-            new Alert(Alert.AlertType.ERROR, "Enter a valid 6-digit confirmation code").showAndWait();
-            return;
-        }
-        if (cartItems.isEmpty()) {
-            new Alert(Alert.AlertType.ERROR, "Cart is empty").showAndWait();
+            new Alert(Alert.AlertType.ERROR, "Enter a valid 6-digit code.").showAndWait();
             return;
         }
 
-
-        boolean allOk = true;
-        for (CartItem it : cartItems) {
-            boolean ok = RegistrationStore.addRegistration(username, it.getTitle(),
-                    it.getSlots(), it.getHours(), it.getTotal());
-            if (!ok) allOk = false;
+        if (CartStore.getCart(username).isEmpty()) {
+            new Alert(Alert.AlertType.ERROR, "Cart is empty.").showAndWait();
+            return;
         }
 
-        if (allOk) {
-            String ts = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
-            new Alert(Alert.AlertType.INFORMATION, "Registration successful on " + ts).showAndWait();
-            cartItems.clear();
-            refreshTotals();
-        } else {
-            new Alert(Alert.AlertType.ERROR, "Some registrations failed validation.").showAndWait();
-        }
+        // compute total contribution
+        double total = CartStore.getCart(username).stream()
+                .mapToDouble(CartStore.Item::getTotal)
+                .sum();
+
+        CartStore.clear(username);
+        refreshTotals();
+
+        new Alert(Alert.AlertType.INFORMATION,
+                String.format("Registration successful!\nTotal contribution: $%.2f", total)
+        ).showAndWait();
     }
 
     @FXML
@@ -133,13 +97,12 @@ public class CartController {
     }
 
     private void refreshTotals() {
-        double sum = cartItems.stream().mapToDouble(CartItem::getTotal).sum();
-        if (totalLabel != null) totalLabel.setText(String.format("Total: $%.2f", sum));
+        double sum = 0;
+        for (CartStore.Item it : CartStore.getCart(username)) {
+            sum += it.getTotal();
+        }
+        if (totalLabel != null) {
+            totalLabel.setText(String.format("Total: $%.2f", sum));
+        }
     }
-
-    public void addFromDashboard(String title, double hourlyValue, int slots, int hours) {
-        cartItems.add(new CartItem(title, slots, hours, hourlyValue));
-        refreshTotals();
-    }
-
 }

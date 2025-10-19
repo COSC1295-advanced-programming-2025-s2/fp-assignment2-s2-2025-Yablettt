@@ -1,50 +1,3 @@
-/*package main.java.voluntrack.controller;
-
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import main.java.voluntrack.model.Project;
-import main.java.voluntrack.store.ProjectStore;
-import main.java.voluntrack.model.User;
-
-
-public class UserDashboardController {
-
-    @FXML private Label welcomeLabel;
-    @FXML private TableView<Project> projectTable;
-    @FXML private TableColumn<Project, String> titleCol;
-    @FXML private TableColumn<Project, String> locationCol;
-    @FXML private TableColumn<Project, String> dayCol;
-    @FXML private TableColumn<Project, Number> hourlyCol;
-    @FXML private TableColumn<Project, Number> availableCol;
-
-    private String username;
-
-    @FXML
-    private void initialize() {
-        titleCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().title()));
-        locationCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().location()));
-        dayCol.setCellValueFactory(c -> new javafx.beans.property.SimpleStringProperty(c.getValue().day()));
-        hourlyCol.setCellValueFactory(c -> new javafx.beans.property.ReadOnlyDoubleWrapper(c.getValue().hourlyValue()));
-        availableCol.setCellValueFactory(c -> new javafx.beans.property.ReadOnlyIntegerWrapper(c.getValue().availableSlots()));
-
-        projectTable.getItems().setAll(ProjectStore.loadAll());
-    }
-
-    public void setUser(User user) {
-        if (user != null) {
-            setUsername(user.getUsername());
-        }
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-        if (welcomeLabel != null) {
-            welcomeLabel.setText("Welcome " + username);
-        }
-    }
-}
-
- */
 package main.java.voluntrack.controller;
 
 import javafx.beans.property.ReadOnlyDoubleWrapper;
@@ -114,22 +67,17 @@ public class UserDashboardController {
         selectedProjectLabel.setText("No project selected");
         setCartControlsEnabled(false);
 
-        // when somethings selected, now reacts / changes
-        projectTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, p) -> {
-            if (p == null) {
+        projectTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            selectedProject = newSel;
+            if (newSel != null) {
+                selectedProjectLabel.setText(newSel.getTitle());
+                if (slotsSpinner.getValueFactory() != null) slotsSpinner.getValueFactory().setValue(1);
+                if (hoursSpinner.getValueFactory() != null) hoursSpinner.getValueFactory().setValue(1);
+                setCartControlsEnabled(true);
+            } else {
                 selectedProjectLabel.setText("No project selected");
                 setCartControlsEnabled(false);
-                return;
             }
-
-            selectedProjectLabel.setText(p.getTitle());
-
-            int maxSlots = Math.max(1, Math.min(3, p.getAvailableSlots()));
-            slotsSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, maxSlots, Math.min(1, maxSlots)));
-            slotsSpinner.setDisable(maxSlots == 0);
-
-
-            setCartControlsEnabled(maxSlots > 0);
         });
 
     }
@@ -147,23 +95,31 @@ public class UserDashboardController {
             new Alert(Alert.AlertType.WARNING, "Select a project first.").showAndWait();
             return;
         }
+
         int slots = slotsSpinner.getValue();
         int hours = hoursSpinner.getValue();
+
+        // validation checks
         if (hours < 1 || hours > 3 || slots < 1 || slots > 3) {
             new Alert(Alert.AlertType.ERROR, "Hours and slots must be between 1 and 3.").showAndWait();
             return;
         }
+
         if (slots > p.getAvailableSlots()) {
             new Alert(Alert.AlertType.ERROR, "Not enough available slots for this project.").showAndWait();
             return;
         }
 
+        CartStore.add(username, p.getTitle(), p.getHourlyValue(), slots, hours);
 
-        //CartStore.add(username, p, slots, hours);
-        Navigator.go("CartView.fxml", username);
+        new Alert(Alert.AlertType.INFORMATION,
+                "Added to cart:\n" + p.getTitle() +
+                        "\nSlots: " + slots +
+                        "\nHours: " + hours).showAndWait();
 
-        new Alert(Alert.AlertType.INFORMATION, "Added to cart: " + p.getTitle()).showAndWait();
+        // Navigator.goToCart(username, p.getTitle(), p.getHourlyValue(), slots, hours);
     }
+
 
 
 }

@@ -1,35 +1,47 @@
 package main.java.voluntrack.store;
 
-import java.util.ArrayList;
-import java.util.List;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class CartStore {
 
     public static class Item {
-        public final String title;
-        public final double hourly;
-        public final int slots;
-        public final int hours;
+        private final String title;
+        private final double hourlyValue;
+        private final int slots;
+        private final int hours;
 
-        public Item(String title, double hourly, int slots, int hours) {
+        public Item(String title, double hourlyValue, int slots, int hours) {
             this.title = title;
-            this.hourly = hourly;
+            this.hourlyValue = hourlyValue;
             this.slots = slots;
             this.hours = hours;
         }
-
-        public double total() { return hourly * slots * hours; }
+        public String getTitle() { return title; }
+        public double getHourlyValue() { return hourlyValue; }
+        public int getSlots() { return slots; }
+        public int getHours() { return hours; }
+        public double getTotal() { return hourlyValue * slots * hours; }
     }
 
-    private static final List<Item> items = new ArrayList<>();
+    private static final Map<String, ObservableList<Item>> carts = new HashMap<>();
 
-    public static void clear() { items.clear(); }
-
-    public static void add(String title, double hourly, int slots, int hours) {
-        items.add(new Item(title, hourly, slots, hours));
+    public static ObservableList<Item> getCart(String username) {
+        return carts.computeIfAbsent(username, k -> FXCollections.observableArrayList());
     }
 
-    public static List<Item> all() {
-        return new ArrayList<>(items);
+    public static void add(String username, String title, double hourlyValue, int slots, int hours) {
+        getCart(username).add(new Item(title, hourlyValue, slots, hours));
+    }
+
+    public static void remove(String username, Item item) {
+        getCart(username).remove(item);
+    }
+
+    public static void clear(String username) {
+        getCart(username).clear();
     }
 }

@@ -156,8 +156,6 @@ public class ProjectStore {
         return null;
     }
 
-
-
    /* public static boolean addRegisteredSlots(String title, int delta) {
         String sql = """
             UPDATE projects
