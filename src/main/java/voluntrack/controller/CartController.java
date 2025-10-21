@@ -3,11 +3,14 @@ package main.java.voluntrack.controller;
 import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import main.java.voluntrack.Navigator;
 import main.java.voluntrack.store.CartStore;
+import main.java.voluntrack.store.RegistrationStore;
 
 public class CartController {
 
@@ -24,12 +27,18 @@ public class CartController {
 
     public void setUsername(String username) {
         this.username = username;
-
+        syncFromStore();
         cartTable.setItems(CartStore.getCart(username));
+        cartTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+    }
 
-        CartStore.getCart(username).addListener((ListChangeListener<CartStore.Item>) c -> refreshTotals());
+    // Reference: Couldn't get cart to sync to history so asked chatgpt for help and gave me this method
+    private void syncFromStore() {
+        if (username == null) return;
+        items.setAll(CartStore.getCart(username));
         refreshTotals();
     }
+
 
     public void addFromDashboard(String title, double hourlyValue, int slots, int hours) {
         main.java.voluntrack.store.CartStore.add(username, title, hourlyValue, slots, hours);
@@ -40,6 +49,9 @@ public class CartController {
         refreshTotals();
     }
 
+    // holds all items user adds
+    private final ObservableList<CartStore.Item> items = FXCollections.observableArrayList();
+
 
     @FXML
     private void initialize() {
@@ -47,20 +59,25 @@ public class CartController {
         slotsCol.setCellValueFactory(c -> new ReadOnlyIntegerWrapper(c.getValue().getSlots()));
         hoursCol.setCellValueFactory(c -> new ReadOnlyIntegerWrapper(c.getValue().getHours()));
         totalCol.setCellValueFactory(c -> new ReadOnlyDoubleWrapper(c.getValue().getTotal()));
+        cartTable.setItems(items);
+        refreshTotals();
     }
 
     @FXML
     private void onRemove() {
-        CartStore.Item sel = cartTable.getSelectionModel().getSelectedItem();
-        if (sel != null) {
-            CartStore.remove(username, sel);
-            refreshTotals();
+        int idx = cartTable.getSelectionModel().getSelectedIndex();
+        if (idx < 0) {
+            new Alert(Alert.AlertType.INFORMATION, "Select an item to remove.").showAndWait();
+            return;
         }
+        CartStore.removeAt(username, idx);
+        refreshTotals();
     }
+
 
     @FXML
     private void onConfirm() {
-        // get 6 digit code
+        // 6 digit code confirmation
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Confirmation Code");
         dialog.setHeaderText("Enter the 6-digit confirmation code");
@@ -73,23 +90,47 @@ public class CartController {
             return;
         }
 
-        if (CartStore.getCart(username).isEmpty()) {
+        syncFromStore();
+
+        if (items.isEmpty()) {
             new Alert(Alert.AlertType.ERROR, "Cart is empty.").showAndWait();
             return;
         }
 
-        // compute total contribution
-        double total = CartStore.getCart(username).stream()
-                .mapToDouble(CartStore.Item::getTotal)
-                .sum();
+        boolean anyFailed = false;
+        double totalContribution = 0.0;
+
+        for (var it : items) {
+            boolean ok = RegistrationStore.addRegistration(
+                    username,
+                    it.getTitle(),
+                    it.getSlots(),
+                    it.getHours(),
+                    it.getTotal()
+            );
+            if (!ok) {
+                anyFailed = true;
+            } else {
+                totalContribution += it.getTotal();
+            }
+        }
+
+        if (anyFailed) {
+            new Alert(Alert.AlertType.ERROR,
+                    "This project has already happened").showAndWait();
+            return;
+        }
 
         CartStore.clear(username);
+        items.clear();
         refreshTotals();
 
         new Alert(Alert.AlertType.INFORMATION,
-                String.format("Registration successful!\nTotal contribution: $%.2f", total)
+                String.format("Registration successful!\nTotal contribution: $%.2f", totalContribution)
         ).showAndWait();
+        Navigator.go("HistoryView.fxml", username);
     }
+
 
     @FXML
     private void onBack() {
@@ -105,4 +146,6 @@ public class CartController {
             totalLabel.setText(String.format("Total: $%.2f", sum));
         }
     }
+
 }
+

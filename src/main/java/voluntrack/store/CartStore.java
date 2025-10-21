@@ -41,6 +41,14 @@ public class CartStore {
         getCart(username).remove(item);
     }
 
+    public static void removeAt(String username, int index) {
+        var list = getCart(username);
+        if (index >= 0 && index < list.size()) {
+            list.remove(index);
+        }
+    }
+
+
     public static void clear(String username) {
         getCart(username).clear();
     }

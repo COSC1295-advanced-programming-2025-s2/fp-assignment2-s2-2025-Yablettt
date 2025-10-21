@@ -8,14 +8,14 @@ import java.sql.Statement;
 public class Database {
     private static final String URL = "jdbc:sqlite:voluntrack.db";
 
-    public static Connection connect() throws SQLException {
+    public static Connection connect() {
         try {
-            Class.forName("org.sqlite.JDBC");
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException("SQLite JDBC driver not found on classpath", e);
+            return java.sql.DriverManager.getConnection("jdbc:sqlite:voluntrack.db");
+        } catch (java.sql.SQLException e) {
+            throw new RuntimeException(e);
         }
-        return DriverManager.getConnection(URL);
     }
+
 
     public static void init() {
         try (Connection conn = connect();
@@ -35,27 +35,30 @@ public class Database {
             // projects table
             stmt.execute("""
                 CREATE TABLE IF NOT EXISTS projects (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    title TEXT,
-                    location TEXT,
-                    day TEXT,
-                    hourlyValue REAL,
-                    registeredSlots INTEGER,
-                    totalSlots INTEGER
-                );
+                              id INTEGER PRIMARY KEY AUTOINCREMENT,
+                              title TEXT NOT NULL,
+                              location TEXT NOT NULL,
+                              day TEXT NOT NULL,
+                              hourlyValue REAL NOT NULL,
+                              registeredSlots INTEGER NOT NULL DEFAULT 0,
+                              totalSlots INTEGER NOT NULL,
+                              enabled INTEGER NOT NULL DEFAULT 1
+                          );
             """);
 
             // rego table
             stmt.execute("""
-                CREATE TABLE IF NOT EXISTS registrations (
-                    regId INTEGER PRIMARY KEY AUTOINCREMENT,
-                    username TEXT,
-                    projectId INTEGER,
-                    slots INTEGER,
-                    hours INTEGER,
-                    value REAL,
-                    dateTime TEXT
-                );
+                    CREATE TABLE IF NOT EXISTS projects (
+                      id INTEGER PRIMARY KEY AUTOINCREMENT,
+                      title TEXT UNIQUE,
+                      location TEXT,
+                      day TEXT,
+                      hourlyValue REAL,
+                      registeredSlots INTEGER,
+                      totalSlots INTEGER,
+                      enabled INTEGER DEFAULT 1
+                    );
+                    
             """);
 
         } catch (SQLException e) {

@@ -25,24 +25,23 @@ public class UserDashboardController {
     @FXML private Spinner<Integer> hoursSpinner;
     @FXML private Button addBtn;
 
-    private String passedUsername;
+
     private String username;
     private Project selectedProject;
 
     public void setUsername(String username) {
-        if (welcomeLabel != null && username != null) {
-            welcomeLabel.setText("Welcome " + username);
-        }
+        this.username = username;
+        welcomeLabel.setText("Welcome " + this.username);
     }
 
     @FXML
     private void onOpenCart() {
-        Navigator.go("CartView.fxml", passedUsername);
+        Navigator.go("CartView.fxml", this.username);
     }
 
     @FXML
     private void onOpenHistory() {
-        Navigator.go("HistoryView.fxml", passedUsername);
+        Navigator.go("HistoryView.fxml", this.username);
     }
 
     @FXML
@@ -95,29 +94,19 @@ public class UserDashboardController {
             new Alert(Alert.AlertType.WARNING, "Select a project first.").showAndWait();
             return;
         }
-
         int slots = slotsSpinner.getValue();
         int hours = hoursSpinner.getValue();
-
-        // validation checks
         if (hours < 1 || hours > 3 || slots < 1 || slots > 3) {
-            new Alert(Alert.AlertType.ERROR, "Hours and slots must be between 1 and 3.").showAndWait();
+            new Alert(Alert.AlertType.ERROR, "Hours and slots must be 1..3.").showAndWait();
             return;
         }
-
         if (slots > p.getAvailableSlots()) {
-            new Alert(Alert.AlertType.ERROR, "Not enough available slots for this project.").showAndWait();
+            new Alert(Alert.AlertType.ERROR, "Not enough available slots.").showAndWait();
             return;
         }
 
         CartStore.add(username, p.getTitle(), p.getHourlyValue(), slots, hours);
-
-        new Alert(Alert.AlertType.INFORMATION,
-                "Added to cart:\n" + p.getTitle() +
-                        "\nSlots: " + slots +
-                        "\nHours: " + hours).showAndWait();
-
-        // Navigator.goToCart(username, p.getTitle(), p.getHourlyValue(), slots, hours);
+        new Alert(Alert.AlertType.INFORMATION, "Added to cart: " + p.getTitle()).showAndWait();
     }
 
 

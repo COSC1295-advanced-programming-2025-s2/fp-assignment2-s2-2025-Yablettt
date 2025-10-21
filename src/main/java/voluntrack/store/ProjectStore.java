@@ -156,24 +156,6 @@ public class ProjectStore {
         return null;
     }
 
-   /* public static boolean addRegisteredSlots(String title, int delta) {
-        String sql = """
-            UPDATE projects
-            SET registeredSlots = registeredSlots + ?
-            WHERE title = ?
-        """;
-        try (Connection conn = Database.connect();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, delta);
-            ps.setString(2, title);
-            return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to add registered slots", e);
-        }
-    }
-
-    */
-
     public static List<Project> loadFromCsv(String resourcePath) {
         List<Project> list = new ArrayList<>();
 
@@ -222,6 +204,81 @@ public class ProjectStore {
         }
 
         return list;
+    }
+
+    public static void seedFromCsvIfEmpty(String resourceCsvPath) {
+        final String countSql = "SELECT COUNT(*) FROM projects";
+        try (Connection c = Database.connect();
+             Statement st = c.createStatement();
+             ResultSet rs = st.executeQuery(countSql)) {
+
+            int count = rs.next() ? rs.getInt(1) : 0;
+            if (count > 0) {
+                return;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to check projects count", e);
+        }
+
+        var in = ProjectStore.class.getResourceAsStream(resourceCsvPath);
+        if (in == null) {
+            throw new RuntimeException("CSV not found on classpath: ");
+        }
+
+        try (java.io.BufferedReader br =
+                     new java.io.BufferedReader(new java.io.InputStreamReader(in))) {
+
+            String line;
+            boolean headerSkipped = false;
+
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty()) continue;
+
+                if (!headerSkipped) {
+                    if (line.toLowerCase().contains("title") ||
+                            line.toLowerCase().contains("hourly") ||
+                            line.toLowerCase().contains("location")) {
+                        headerSkipped = true;
+                        continue;
+                    }
+                    headerSkipped = true;
+                    continue;
+                }
+
+                String[] parts = line.split(",");
+                if (parts.length < 6) {
+                    continue;
+                }
+
+                String title    = parts[0].trim();
+                String location = parts[1].trim();
+                String day      = parts[2].trim();
+
+                String hvRaw = parts[3].replace("$", "").replace("AUD", "").trim();
+                double hourlyValue = Double.parseDouble(hvRaw);
+
+                int registeredSlots = safeParseInt(parts[4].trim(), 0);
+                int totalSlots      = safeParseInt(parts[5].trim(), 0);
+
+                boolean enabled = true;
+                if (parts.length >= 7) {
+                    String e = parts[6].trim().toLowerCase();
+                    enabled = !(e.equals("0") || e.equals("false") || e.equals("no"));
+                }
+
+                boolean ok = insert(title, location, day, hourlyValue, registeredSlots, totalSlots);
+                if (!ok) {
+                }
+            }
+
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to seed projects from CSV", ex);
+        }
+    }
+
+    private static int safeParseInt(String s, int fallback) {
+        try { return Integer.parseInt(s); } catch (Exception ignored) { return fallback; }
     }
 
 }

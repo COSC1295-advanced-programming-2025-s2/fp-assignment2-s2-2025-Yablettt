@@ -44,10 +44,11 @@ public class RegistrationStore {
 
     public static boolean addRegistration(String username, String projectTitle,
                                           int slots, int hours, double value) {
-        if (hours < 1 || hours > 3 || slots < 1 || slots > 3) return false;
+        if (hours < 1 || hours > 3 || slots < 1 || slots > 3) {
+            return false;
+        }
 
         try (Connection conn = Database.connect()) {
-            // get project by title
             int projectId = -1, totalSlots = 0, regSlots = 0;
             String location = "", day = "";
             double hourlyValue = 0.0;
@@ -70,13 +71,18 @@ public class RegistrationStore {
                 }
             }
 
-            // will help deny if day has passed in the week
-            if (!isDayAllowed(day)) return false;
+            final boolean BYPASS_DAY_RULE = false;
+            if (!BYPASS_DAY_RULE && !isDayAllowed(day)) {
+                return false;
+            }
 
             int available = Math.max(0, totalSlots - regSlots);
-            if (slots > available) return false;
+            if (slots > available) {
+                return false;
+            }
 
-            String now = LocalDateTime.now().toString();
+            String now = java.time.LocalDateTime.now().toString();
+
             try (PreparedStatement ps = conn.prepareStatement(
                     "INSERT INTO registrations (username, projectId, slots, hours, value, dateTime) " +
                             "VALUES (?, ?, ?, ?, ?, ?)")) {
@@ -86,7 +92,8 @@ public class RegistrationStore {
                 ps.setInt(4, hours);
                 ps.setDouble(5, value == 0.0 ? hourlyValue * hours * slots : value);
                 ps.setString(6, now);
-                ps.executeUpdate();
+                int rows = ps.executeUpdate();
+                if (rows == 0) return false;
             }
 
             try (PreparedStatement ps = conn.prepareStatement(
@@ -103,23 +110,124 @@ public class RegistrationStore {
     }
 
     private static boolean isDayAllowed(String projectDayName) {
-        DayOfWeek today = LocalDate.now().getDayOfWeek();
-        int todayIdx = dayToIndex(today.name());
-        int projIdx  = dayToIndex(projectDayName.toUpperCase());
-        if (projIdx == -1) return false;
-        return projIdx >= todayIdx;
+        if (projectDayName == null) return false;
+        int todayIdx = dayToIndex(LocalDate.now().getDayOfWeek().name());
+        int projIdx  = dayToIndex(projectDayName);
+
+        return projIdx != -1 && projIdx >= todayIdx;
     }
 
-    private static int dayToIndex(String upper) {
-        switch (upper) {
-            case "MONDAY": return 1;
-            case "TUESDAY": return 2;
-            case "WEDNESDAY": return 3;
-            case "THURSDAY": return 4;
-            case "FRIDAY": return 5;
-            case "SATURDAY": return 6;
-            case "SUNDAY": return 7;
-            default: return -1;
+    private static int dayToIndex(String day) {
+        if (day == null) return -1;
+        String d = day.trim().toUpperCase();
+
+        if (d.equals("MONDAY"))    return 1;
+        if (d.equals("TUESDAY"))   return 2;
+        if (d.equals("WEDNESDAY")) return 3;
+        if (d.equals("THURSDAY"))  return 4;
+        if (d.equals("FRIDAY"))    return 5;
+        if (d.equals("SATURDAY"))  return 6;
+        if (d.equals("SUNDAY"))    return 7;
+
+        if (d.startsWith("MON")) return 1;
+        if (d.startsWith("TUE")) return 2;
+        if (d.startsWith("WED")) return 3;
+        if (d.startsWith("THU")) return 4;
+        if (d.startsWith("FRI")) return 5;
+        if (d.startsWith("SAT")) return 6;
+        if (d.startsWith("SUN")) return 7;
+
+        return -1;
+    }
+
+    public static class HistoryRow {
+        private final int regId;
+        private final String dateTime;
+        private final String title;
+        private final String location;
+        private final String day;
+        private final int slots;
+        private final int hours;
+        private final double total;
+
+        public HistoryRow(int regId, String dateTime, String title, String location,
+                          String day, int slots, int hours, double total) {
+            this.regId = regId;
+            this.dateTime = dateTime;
+            this.title = title;
+            this.location = location;
+            this.day = day;
+            this.slots = slots;
+            this.hours = hours;
+            this.total = total;
+        }
+
+        public int getRegId() {
+            return regId;
+        }
+
+        public String getDateTime() {
+            return dateTime;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public String getLocation() {
+            return location;
+        }
+
+        public String getDay() {
+            return day;
+        }
+
+        public int getSlots() {
+            return slots;
+        }
+
+        public int getHours() {
+            return hours;
+        }
+
+        public double getTotal() {
+            return total;
         }
     }
+
+    public static List<HistoryRow> loadHistoryRowsFor(String username) {
+        List<HistoryRow> list = new ArrayList<>();
+        String sql = """
+            SELECT r.regId, r.dateTime, r.slots, r.hours, r.value,
+                   p.title, p.location, p.day
+            FROM registrations r
+            JOIN projects p ON p.id = r.projectId
+            WHERE r.username = ?
+            ORDER BY r.dateTime DESC
+            """;
+
+        try (Connection conn = Database.connect();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(new HistoryRow(
+                            rs.getInt("regId"),
+                            rs.getString("dateTime"),
+                            rs.getString("title"),
+                            rs.getString("location"),
+                            rs.getString("day"),
+                            rs.getInt("slots"),
+                            rs.getInt("hours"),
+                            rs.getDouble("value")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to load history for " + username, e);
+        }
+        return list;
+    }
+
 }
+

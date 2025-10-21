@@ -8,6 +8,8 @@ import main.java.voluntrack.controller.CartController;
 import main.java.voluntrack.controller.HistoryController;
 import main.java.voluntrack.controller.UserDashboardController;
 
+import java.lang.reflect.Method;
+
 public class Navigator {
     static Stage primaryStage;
     public static void setStage(Stage stage) { primaryStage = stage; }
@@ -30,13 +32,14 @@ public class Navigator {
             Parent root = loader.load();
 
             Object controller = loader.getController();
-            if (controller instanceof UserDashboardController udc) {
-                udc.setUsername(username);
-            } else if (controller instanceof HistoryController hc) {
-                hc.setUsername(username);
-            } else if (controller instanceof CartController cc) {
-                cc.setUsername(username);
+            if (controller != null) {
+                try {
+                    Method m = controller.getClass().getMethod("setUsername", String.class);
+                    m.invoke(controller, username);
+                } catch (NoSuchMethodException ignore) {
+                }
             }
+
             primaryStage.setScene(new Scene(root));
             primaryStage.show();
         } catch (Exception e) {
