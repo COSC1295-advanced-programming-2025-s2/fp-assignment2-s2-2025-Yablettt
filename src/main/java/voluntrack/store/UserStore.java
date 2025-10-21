@@ -43,16 +43,15 @@ public class UserStore {
         return null;
     }
 
-    public static boolean updatePassword(String username, String oldPlain, String newPlain) {
-        String sql = "UPDATE users SET password = ? WHERE username = ? AND password = ?";
-        try (Connection conn = Database.connect();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, hash(newPlain));
+    public static boolean updatePassword(String username, String newRawPassword) {
+        String sql = "UPDATE users SET password = ? WHERE username = ?";
+        try (Connection c = Database.connect();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, sha256(newRawPassword));
             ps.setString(2, username);
-            ps.setString(3, hash(oldPlain));
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            return false;
+            throw new RuntimeException(e);
         }
     }
 
@@ -65,6 +64,46 @@ public class UserStore {
             return sb.toString();
         } catch (Exception e) {
             throw new RuntimeException("Hash error", e);
+        }
+    }
+
+    public static boolean exists(String username) {
+        String sql = "SELECT 1 FROM users WHERE username = ?";
+        try (Connection c = Database.connect();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String sha256(String text) {
+        try {
+            var md = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] digest = md.digest(text.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder();
+            for (byte b : digest) sb.append(String.format("%02x", b));
+            return sb.toString();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static boolean verify(String username, String rawPassword) {
+        String sql = "SELECT password FROM users WHERE username = ?";
+        try (Connection c = Database.connect();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return false;
+                String dbHash = rs.getString("password");
+                return dbHash.equals(sha256(rawPassword));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }

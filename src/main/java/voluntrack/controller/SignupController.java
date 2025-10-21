@@ -26,6 +26,10 @@ public class SignupController {
             new Alert(Alert.AlertType.ERROR, "Full name, username and password are required.").showAndWait();
             return;
         }
+        if (UserStore.exists(username)) {
+            new Alert(Alert.AlertType.ERROR, "Username is already taken.").showAndWait();
+            return;
+        }
 
         try {
             UserStore.add(new User(fullName, username, email, pass));

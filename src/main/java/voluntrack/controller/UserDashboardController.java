@@ -9,6 +9,7 @@ import main.java.voluntrack.model.Project;
 import main.java.voluntrack.store.CartStore;
 import main.java.voluntrack.store.ProjectStore;
 import main.java.voluntrack.Navigator;
+import main.java.voluntrack.store.UserStore;
 
 public class UserDashboardController {
 
@@ -32,6 +33,7 @@ public class UserDashboardController {
     public void setUsername(String username) {
         this.username = username;
         welcomeLabel.setText("Welcome " + this.username);
+        initialize();
     }
 
     @FXML
@@ -60,7 +62,8 @@ public class UserDashboardController {
         slotsSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 3, 1));
         hoursSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 3, 1));
 
-        projectTable.getItems().setAll(ProjectStore.loadFromCsv("/data/projects.csv"));
+        //projectTable.getItems().setAll(ProjectStore.loadFromCsv("/data/projects.csv"));
+        projectTable.getItems().setAll(ProjectStore.loadAll());
         projectTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
         selectedProjectLabel.setText("No project selected");
@@ -109,7 +112,42 @@ public class UserDashboardController {
         new Alert(Alert.AlertType.INFORMATION, "Added to cart: " + p.getTitle()).showAndWait();
     }
 
+    @FXML
+    private void onChangePassword() {
+        TextInputDialog curDlg = new TextInputDialog();
+        curDlg.setTitle("Change Password");
+        curDlg.setHeaderText("Enter your current password");
+        curDlg.setContentText("Current password:");
+        String current = curDlg.showAndWait().orElse("").trim();
+        if (current.isEmpty()) return;
 
+        if (!UserStore.verify(username, current)) {
+            new Alert(Alert.AlertType.ERROR, "Current password is incorrect.").showAndWait();
+            return;
+        }
 
+        TextInputDialog newDlg = new TextInputDialog();
+        newDlg.setTitle("Change Password");
+        newDlg.setHeaderText("Enter your new password");
+        newDlg.setContentText("New password:");
+        String newPass = newDlg.showAndWait().orElse("").trim();
+        if (newPass.isEmpty()) return;
+
+        TextInputDialog confDlg = new TextInputDialog();
+        confDlg.setTitle("Change Password");
+        confDlg.setHeaderText("Confirm your new password");
+        confDlg.setContentText("Confirm:");
+        String confirm = confDlg.showAndWait().orElse("").trim();
+        if (!newPass.equals(confirm)) {
+            new Alert(Alert.AlertType.ERROR, "New passwords do not match.").showAndWait();
+            return;
+        }
+
+        if (UserStore.updatePassword(username, newPass)) {
+            new Alert(Alert.AlertType.INFORMATION, "Password updated.").showAndWait();
+        } else {
+            new Alert(Alert.AlertType.ERROR, "Failed to update password.").showAndWait();
+        }
+    }
 }
 

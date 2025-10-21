@@ -35,30 +35,30 @@ public class Database {
             // projects table
             stmt.execute("""
                 CREATE TABLE IF NOT EXISTS projects (
-                              id INTEGER PRIMARY KEY AUTOINCREMENT,
-                              title TEXT NOT NULL,
-                              location TEXT NOT NULL,
-                              day TEXT NOT NULL,
-                              hourlyValue REAL NOT NULL,
-                              registeredSlots INTEGER NOT NULL DEFAULT 0,
-                              totalSlots INTEGER NOT NULL,
-                              enabled INTEGER NOT NULL DEFAULT 1
-                          );
+                  id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  title TEXT NOT NULL,
+                  location TEXT NOT NULL,
+                  day TEXT NOT NULL,
+                  hourlyValue REAL NOT NULL,
+                  registeredSlots INTEGER NOT NULL DEFAULT 0,
+                  totalSlots INTEGER NOT NULL,
+                  enabled INTEGER NOT NULL DEFAULT 1
+              );
             """);
 
             // rego table
             stmt.execute("""
-                    CREATE TABLE IF NOT EXISTS projects (
-                      id INTEGER PRIMARY KEY AUTOINCREMENT,
-                      title TEXT UNIQUE,
-                      location TEXT,
-                      day TEXT,
-                      hourlyValue REAL,
-                      registeredSlots INTEGER,
-                      totalSlots INTEGER,
-                      enabled INTEGER DEFAULT 1
-                    );
-                    
+                   CREATE TABLE IF NOT EXISTS registrations (
+                      regId INTEGER PRIMARY KEY AUTOINCREMENT,
+                      username TEXT NOT NULL,
+                      projectId INTEGER NOT NULL,
+                      slots INTEGER NOT NULL,
+                      hours INTEGER NOT NULL,
+                      value REAL NOT NULL,
+                      dateTime TEXT NOT NULL,
+                      FOREIGN KEY (username) REFERENCES users(username),
+                      FOREIGN KEY (projectId) REFERENCES projects(id)
+                  );
             """);
 
         } catch (SQLException e) {

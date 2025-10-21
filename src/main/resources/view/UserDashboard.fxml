@@ -20,9 +20,8 @@
                <padding>
                   <Insets right="30.0" />
                </padding></Label>
-            <Pane prefHeight="29.0" prefWidth="174.0" />
+            <Pane prefHeight="40.0" prefWidth="108.0" />
             <Pane prefHeight="29.0" prefWidth="10.0" />
-            <Pane prefHeight="40.0" prefWidth="54.0" />
             <Button graphicTextGap="0.0" mnemonicParsing="false" onAction="#onOpenCart" text="Cart">
                <opaqueInsets>
                   <Insets />
@@ -30,6 +29,8 @@
             </Button>
             <Pane prefHeight="29.0" prefWidth="10.0" />
             <Button mnemonicParsing="false" onAction="#onOpenHistory" text="History" />
+            <Pane prefHeight="29.0" prefWidth="10.0" />
+            <Button mnemonicParsing="false" onAction="#onChangePassword" text="Change Password" />
             <Pane prefHeight="29.0" prefWidth="10.0" />
             <Button mnemonicParsing="false" onAction="#onLogout" text="Logout" />
         </items>

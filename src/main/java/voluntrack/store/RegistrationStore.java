@@ -112,7 +112,8 @@ public class RegistrationStore {
     private static boolean isDayAllowed(String projectDayName) {
         if (projectDayName == null) return false;
         int todayIdx = dayToIndex(LocalDate.now().getDayOfWeek().name());
-        int projIdx  = dayToIndex(projectDayName);
+        int projIdx = dayToIndex(projectDayName.trim().toUpperCase());
+
 
         return projIdx != -1 && projIdx >= todayIdx;
     }
