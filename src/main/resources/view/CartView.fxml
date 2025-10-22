@@ -14,7 +14,7 @@
           <TableColumn fx:id="titleCol" prefWidth="143.9999338388443" text="Project" />
             <TableColumn fx:id="slotsCol" prefWidth="158.00001525878906" text="Slots" />
             <TableColumn fx:id="hoursCol" prefWidth="160.0" text="Hours" />
-            <TableColumn fx:id="totalCol" prefWidth="139.33328247070312" text="Total" />
+            <TableColumn fx:id="totalCol" prefWidth="139.33328247070312" text="Total ($)" />
         </columns>
       </TableView>
    </center>

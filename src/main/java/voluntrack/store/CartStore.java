@@ -14,6 +14,7 @@ public class CartStore {
         private final int slots;
         private final int hours;
 
+        // holds project info and calc total cost
         public Item(String title, double hourlyValue, int slots, int hours) {
             this.title = title;
             this.hourlyValue = hourlyValue;
@@ -27,8 +28,11 @@ public class CartStore {
         public double getTotal() { return hourlyValue * slots * hours; }
     }
 
+    // maps username to observable list of cart items
     private static final Map<String, ObservableList<Item>> carts = new HashMap<>();
 
+
+    // returns cart
     public static ObservableList<Item> getCart(String username) {
         return carts.computeIfAbsent(username, k -> FXCollections.observableArrayList());
     }
@@ -37,17 +41,12 @@ public class CartStore {
         getCart(username).add(new Item(title, hourlyValue, slots, hours));
     }
 
-    public static void remove(String username, Item item) {
-        getCart(username).remove(item);
-    }
-
     public static void removeAt(String username, int index) {
         var list = getCart(username);
         if (index >= 0 && index < list.size()) {
             list.remove(index);
         }
     }
-
 
     public static void clear(String username) {
         getCart(username).clear();

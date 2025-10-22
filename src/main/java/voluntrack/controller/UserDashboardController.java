@@ -68,6 +68,7 @@ public class UserDashboardController {
         selectedProjectLabel.setText("No project selected");
         setCartControlsEnabled(false);
 
+        // displays project when it is selected
         projectTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             selectedProject = newSel;
             if (newSel != null) {
@@ -89,6 +90,8 @@ public class UserDashboardController {
         addBtn.setDisable(!enabled);
     }
 
+
+    // checks available slots and add items for user
     @FXML
     private void onAddToCart() {
         Project p = projectTable.getSelectionModel().getSelectedItem();
@@ -113,11 +116,11 @@ public class UserDashboardController {
 
     @FXML
     private void onChangePassword() {
-        TextInputDialog curDlg = new TextInputDialog();
-        curDlg.setTitle("Change Password");
-        curDlg.setHeaderText("Enter your current password");
-        curDlg.setContentText("Current password:");
-        String current = curDlg.showAndWait().orElse("").trim();
+        TextInputDialog currentPass = new TextInputDialog();
+        currentPass.setTitle("Change Password");
+        currentPass.setHeaderText("Enter your current password");
+        currentPass.setContentText("Current password:");
+        String current = currentPass.showAndWait().orElse("");
         if (current.isEmpty()) return;
 
         if (!UserStore.verify(username, current)) {
@@ -125,18 +128,19 @@ public class UserDashboardController {
             return;
         }
 
-        TextInputDialog newDlg = new TextInputDialog();
-        newDlg.setTitle("Change Password");
-        newDlg.setHeaderText("Enter your new password");
-        newDlg.setContentText("New password:");
-        String newPass = newDlg.showAndWait().orElse("").trim();
+        TextInputDialog newPwd = new TextInputDialog();
+        newPwd.setTitle("Change Password");
+        newPwd.setHeaderText("Enter your new password");
+        newPwd.setContentText("New password:");
+        String newPass = newPwd.showAndWait().orElse("");
         if (newPass.isEmpty()) return;
 
-        TextInputDialog confDlg = new TextInputDialog();
-        confDlg.setTitle("Change Password");
-        confDlg.setHeaderText("Confirm your new password");
-        confDlg.setContentText("Confirm:");
-        String confirm = confDlg.showAndWait().orElse("").trim();
+        //verify new password
+        TextInputDialog confirmPass = new TextInputDialog();
+        confirmPass.setTitle("Change Password");
+        confirmPass.setHeaderText("Confirm your new password");
+        confirmPass.setContentText("Confirm:");
+        String confirm = confirmPass.showAndWait().orElse("");
         if (!newPass.equals(confirm)) {
             new Alert(Alert.AlertType.ERROR, "New passwords do not match.").showAndWait();
             return;

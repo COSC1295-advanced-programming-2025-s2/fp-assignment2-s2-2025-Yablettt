@@ -4,7 +4,6 @@ import javafx.beans.property.ReadOnlyDoubleWrapper;
 import javafx.beans.property.ReadOnlyIntegerWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -21,7 +20,6 @@ public class CartController {
     @FXML private TableColumn<CartStore.Item, Number> totalCol;
 
     @FXML private Label totalLabel;
-    @FXML private TextField codeField;
 
     private String username;
 
@@ -38,7 +36,6 @@ public class CartController {
         items.setAll(CartStore.getCart(username));
         refreshTotals();
     }
-
 
     public void addFromDashboard(String title, double hourlyValue, int slots, int hours) {
         main.java.voluntrack.store.CartStore.add(username, title, hourlyValue, slots, hours);
@@ -65,12 +62,12 @@ public class CartController {
 
     @FXML
     private void onRemove() {
-        int idx = cartTable.getSelectionModel().getSelectedIndex();
-        if (idx < 0) {
+        int id = cartTable.getSelectionModel().getSelectedIndex();
+        if (id < 0) {
             new Alert(Alert.AlertType.INFORMATION, "Select an item to remove.").showAndWait();
             return;
         }
-        CartStore.removeAt(username, idx);
+        CartStore.removeAt(username, id);
         refreshTotals();
     }
 
@@ -78,18 +75,19 @@ public class CartController {
     @FXML
     private void onConfirm() {
         // 6 digit code confirmation
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Confirmation Code");
-        dialog.setHeaderText("Enter the 6-digit confirmation code");
-        dialog.setContentText("Code:");
-        dialog.getEditor().setPromptText("e.g. 123456");
+        TextInputDialog d = new TextInputDialog();
+        d.setTitle("Confirmation Code");
+        d.setHeaderText("Enter the 6-digit confirmation code");
+        d.setContentText("Code:");
+        d.getEditor().setPromptText("e.g. 123456");
 
-        String code = dialog.showAndWait().orElse("").trim();
+        String code = d.showAndWait().orElse("");
         if (!code.matches("\\d{6}")) {
             new Alert(Alert.AlertType.ERROR, "Enter a valid 6-digit code.").showAndWait();
             return;
         }
 
+        // this will help this.items mirror current state of CartStore
         syncFromStore();
 
         if (items.isEmpty()) {
@@ -97,7 +95,7 @@ public class CartController {
             return;
         }
 
-        boolean anyFailed = false;
+        boolean fail = false;
         double totalContribution = 0.0;
 
         for (var it : items) {
@@ -109,13 +107,13 @@ public class CartController {
                     it.getTotal()
             );
             if (!ok) {
-                anyFailed = true;
+                fail = true;
             } else {
                 totalContribution += it.getTotal();
             }
         }
 
-        if (anyFailed) {
+        if (fail) {
             new Alert(Alert.AlertType.ERROR,
                     "This project has already happened").showAndWait();
             return;

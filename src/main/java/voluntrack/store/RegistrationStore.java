@@ -1,47 +1,13 @@
 package main.java.voluntrack.store;
 
-import main.java.voluntrack.model.Registration;
-
 import java.sql.*;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RegistrationStore {
 
-    public static List<Registration> loadFor(String username) {
-        List<Registration> list = new ArrayList<>();
-        String sql =
-                "SELECT regId, username, projectId, slots, hours, value, dateTime " +
-                        "FROM registrations " +
-                        "WHERE username = ? " +
-                        "ORDER BY dateTime DESC";
-
-        try (Connection conn = Database.connect();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-
-            ps.setString(1, username);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(new Registration(
-                            rs.getInt("regId"),
-                            rs.getString("username"),
-                            rs.getInt("projectId"),
-                            rs.getInt("slots"),
-                            rs.getInt("hours"),
-                            rs.getDouble("value"),
-                            rs.getString("dateTime")
-                    ));
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to load registrations for " + username, e);
-        }
-        return list;
-    }
-
+    // helps insert registration after its confirmed
     public static boolean addRegistration(String username, String projectTitle,
                                           int slots, int hours, double value) {
         if (hours < 1 || hours > 3 || slots < 1 || slots > 3) {
@@ -71,11 +37,13 @@ public class RegistrationStore {
                 }
             }
 
-            final boolean BYPASS_DAY_RULE = false;
-            if (!BYPASS_DAY_RULE && !isDayAllowed(day)) {
+            // prevents registrations that have already happened in the week
+            final boolean dayRule = false;
+            if (!dayRule && !isDayAllowed(day)) {
                 return false;
             }
 
+            // availability
             int available = Math.max(0, totalSlots - regSlots);
             if (slots > available) {
                 return false;
@@ -83,6 +51,7 @@ public class RegistrationStore {
 
             String now = java.time.LocalDateTime.now().toString();
 
+            // insert rego
             try (PreparedStatement ps = conn.prepareStatement(
                     "INSERT INTO registrations (username, projectId, slots, hours, value, dateTime) " +
                             "VALUES (?, ?, ?, ?, ?, ?)")) {
@@ -96,6 +65,7 @@ public class RegistrationStore {
                 if (rows == 0) return false;
             }
 
+            // chnage registered slot count
             try (PreparedStatement ps = conn.prepareStatement(
                     "UPDATE projects SET registeredSlots = registeredSlots + ? WHERE id = ?")) {
                 ps.setInt(1, slots);
@@ -109,6 +79,7 @@ public class RegistrationStore {
         }
     }
 
+    // if it is same day or later it is true
     private static boolean isDayAllowed(String projectDayName) {
         if (projectDayName == null) return false;
         int todayIdx = dayToIndex(LocalDate.now().getDayOfWeek().name());
@@ -118,6 +89,8 @@ public class RegistrationStore {
         return projIdx != -1 && projIdx >= todayIdx;
     }
 
+    // map day strings
+    // Reference: I asked ChatGPT how to map days of the week to something such as a number, because my original code didnt work
     private static int dayToIndex(String day) {
         if (day == null) return -1;
         String d = day.trim().toUpperCase();
@@ -141,6 +114,7 @@ public class RegistrationStore {
         return -1;
     }
 
+    // data transfer for history table
     public static class HistoryRow {
         private final int regId;
         private final String dateTime;
@@ -196,6 +170,7 @@ public class RegistrationStore {
         }
     }
 
+    // load historyrow list for a user
     public static List<HistoryRow> loadHistoryRowsFor(String username) {
         List<HistoryRow> list = new ArrayList<>();
         String sql = """

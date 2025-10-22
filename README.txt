@@ -14,5 +14,6 @@ Y users can export history
 Y no duplicate usernames
 Y some css styling
 Y History can be viewed after logging out or closing app
+N unit testing
 N admin features
 

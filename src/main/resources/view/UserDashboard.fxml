@@ -44,7 +44,7 @@
           <TableColumn fx:id="titleCol" prefWidth="75.0" text="Title" />
           <TableColumn fx:id="locationCol" prefWidth="75.0" text="Location" />
             <TableColumn fx:id="dayCol" prefWidth="75.0" text="Day" />
-            <TableColumn fx:id="hourlyCol" prefWidth="75.0" text="Hourly" />
+            <TableColumn fx:id="hourlyCol" prefWidth="75.0" text="Hourly ($)" />
             <TableColumn fx:id="availableCol" prefWidth="75.0" text="Availabilty" />
         </columns>
       </TableView>

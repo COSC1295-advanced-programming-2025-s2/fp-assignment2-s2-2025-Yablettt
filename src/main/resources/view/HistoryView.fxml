@@ -18,7 +18,7 @@
             <TableColumn fx:id="dayCol" prefWidth="75.0" text="Day" />
             <TableColumn fx:id="slotsCol" prefWidth="75.0" text="Slots" />
             <TableColumn fx:id="hoursCol" prefWidth="75.0" text="Hours" />
-            <TableColumn fx:id="totalCol" prefWidth="75.0" text="Total" />
+            <TableColumn fx:id="totalCol" prefWidth="75.0" text="Total ($)" />
         </columns>
          <columnResizePolicy>
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

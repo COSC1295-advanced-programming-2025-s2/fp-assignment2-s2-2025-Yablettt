@@ -41,6 +41,8 @@ public class HistoryController {
         loadData();
     }
 
+
+    // loads all the past regos for the user
     private void loadData() {
         if (username == null) {
             return;

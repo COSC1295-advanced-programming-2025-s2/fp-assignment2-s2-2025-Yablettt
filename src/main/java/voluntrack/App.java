@@ -6,14 +6,13 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import main.java.voluntrack.store.Database;
 import main.java.voluntrack.store.ProjectStore;
-import main.java.voluntrack.store.RegistrationStore;
 
 public class App extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         // create db
         Database.init();
-        ProjectStore.seedFromCsvIfEmpty("/data/projects.csv");
+        ProjectStore.loadCSV("/data/projects.csv");
 
         //load screen
         Navigator.setStage(stage);

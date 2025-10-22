@@ -15,12 +15,14 @@ public class SignupController {
     @FXML private TextField emailField;
     @FXML private PasswordField passwordField;
 
+
+    // validates inputs and creates new user in db
     @FXML
     private void handleCreateAccount() {
-        String fullName = fullNameField.getText().trim();
-        String username = usernameField.getText().trim();
-        String email    = emailField.getText().trim();
-        String pass     = passwordField.getText().trim();
+        String fullName = fullNameField.getText();
+        String username = usernameField.getText();
+        String email    = emailField.getText();
+        String pass     = passwordField.getText();
 
         if (fullName.isEmpty() || username.isEmpty() || pass.isEmpty()) {
             new Alert(Alert.AlertType.ERROR, "Full name, username and password are required.").showAndWait();

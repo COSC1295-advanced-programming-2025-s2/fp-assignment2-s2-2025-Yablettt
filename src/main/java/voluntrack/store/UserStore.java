@@ -7,6 +7,7 @@ import java.sql.*;
 
 public class UserStore {
 
+    // adds new user to db and hash pwd
     public static void add(User u) {
         String sql = "INSERT INTO users(fullName, username, email, password) VALUES (?, ?, ?, ?)";
         try (Connection conn = Database.connect();
@@ -21,6 +22,7 @@ public class UserStore {
         }
     }
 
+    // finds user thru their username and pass and pass is compared used SHA-256 hash
     public static User findUser(String username, String password) {
         String sql = "SELECT fullName, username, email, password FROM users WHERE username = ? AND password = ?";
         try (Connection conn = Database.connect();
@@ -43,6 +45,7 @@ public class UserStore {
         return null;
     }
 
+    //hashes new pass before storing it
     public static boolean updatePassword(String username, String newRawPassword) {
         String sql = "UPDATE users SET password = ? WHERE username = ?";
         try (Connection c = Database.connect();
@@ -55,6 +58,7 @@ public class UserStore {
         }
     }
 
+    // reference: asked chatgpt how to create method to hash something that will need to be stored in a db and used later to login
     private static String hash(String password) {
         try {
             MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -67,6 +71,7 @@ public class UserStore {
         }
     }
 
+    // checks if username already exists
     public static boolean exists(String username) {
         String sql = "SELECT 1 FROM users WHERE username = ?";
         try (Connection c = Database.connect();
@@ -80,6 +85,7 @@ public class UserStore {
         }
     }
 
+    // helper that was also given to me when i asked chatgpt how to hash
     public static String sha256(String text) {
         try {
             var md = java.security.MessageDigest.getInstance("SHA-256");
@@ -92,6 +98,7 @@ public class UserStore {
         }
     }
 
+    // validates login attempt
     public static boolean verify(String username, String rawPassword) {
         String sql = "SELECT password FROM users WHERE username = ?";
         try (Connection c = Database.connect();
