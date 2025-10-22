@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.voluntrack.controller.CartController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="700.0" stylesheets="@/style/app.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.java.voluntrack.controller.CartController">
    <center>
       <TableView fx:id="cartTable" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <columns>
@@ -19,18 +19,18 @@
       </TableView>
    </center>
    <bottom>
-      <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
+      <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0" BorderPane.alignment="CENTER">
          <padding>
-            <Insets bottom="16.0" left="16.0" right="200.0" top="16.0" />
+            <Insets bottom="16.0" top="16.0" />
          </padding>
          <children>
-            <Button mnemonicParsing="false" onAction="#onBack" text="Back">
+            <Button mnemonicParsing="false" onAction="#onBack" text="Back" HBox.hgrow="ALWAYS">
                <HBox.margin>
                   <Insets />
                </HBox.margin>
             </Button>
-            <Button mnemonicParsing="false" onAction="#onRemove" text="Remove Selected" />
-            <Button defaultButton="true" mnemonicParsing="false" onAction="#onConfirm" text="Confirm" />
+            <Button mnemonicParsing="false" onAction="#onRemove" text="Remove Selected" HBox.hgrow="ALWAYS" />
+            <Button defaultButton="true" mnemonicParsing="false" onAction="#onConfirm" text="Confirm" HBox.hgrow="ALWAYS" />
          </children>
       </HBox>
    </bottom>

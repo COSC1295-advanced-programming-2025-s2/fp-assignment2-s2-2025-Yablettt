@@ -1,15 +1,18 @@
-Voluntrack Database Information
+s4096381, Jack Gigl
 
-Using SQLite
-
-Database file is voluntrack.db which is created in the root directory.
-
-Driver is org.sqlite.JDBC
-
-Databse.init() method automatically creates all required tables.
-
-ProjectStore.seedFromCsvIfEmpty loads initial project data into the projects table if it is empty.
-
-Users information is stored in the 'users' table. Project information is stored in 'projects'.
-Confirmed registrations are stored in 'registrations'.
+Y Signup
+Y Login
+Y Read projects from database and display
+Y projects can be registered for
+N Registrations can't be modified (Y the hours and slots can be though before added to cart)
+Y Registrations are validated
+Y Log in and change password update and encryption
+Y confirmation validated with confirmation code and date
+Y Project slot availability updated after registration
+Y users can view participation history
+Y users can export history
+Y no duplicate usernames
+Y some css styling
+Y History can be viewed after logging out or closing app
+N admin features
 

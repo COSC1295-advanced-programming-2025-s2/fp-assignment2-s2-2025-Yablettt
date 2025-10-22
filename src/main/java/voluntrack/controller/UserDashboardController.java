@@ -62,7 +62,6 @@ public class UserDashboardController {
         slotsSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 3, 1));
         hoursSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 3, 1));
 
-        //projectTable.getItems().setAll(ProjectStore.loadFromCsv("/data/projects.csv"));
         projectTable.getItems().setAll(ProjectStore.loadAll());
         projectTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
